@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { Observable, of, Subject } from "rxjs";
 import { Stream } from "stream";
-import * as R from "ramda";
 import { Router } from "express";
 import { Logger } from "./logger";
 
@@ -77,12 +76,12 @@ export interface Route {
   (context: Observable<IHttpContext>): Observable<any>;
 }
 
-const applyContext: (req: Request) => IHttpContext = R.applySpec({
-  headers: R.prop("headers"),
-  query: R.prop("query"),
-  params: R.prop("params"),
-  body: R.prop("body"),
-  req: R.identity,
+const applyContext: (req: Request) => IHttpContext = (req: Request) => ({
+  headers: req.headers,
+  query: req.query,
+  params: req.params,
+  body: req.body,
+  req,
 });
 
 export const chunkFromStream = (source: Observable<any>) =>
@@ -183,7 +182,7 @@ const normalizePath = (routePath: string) => {
 };
 
 export const attachRouter = (routes: { [key: string]: Route }) => {
-  const router: Record<string, any> = Router();
+  const router = Router();
   const modules = Object.keys(routes)
     .map((k) => ({
       ...normalizePath(k),
@@ -191,7 +190,8 @@ export const attachRouter = (routes: { [key: string]: Route }) => {
     }))
     .sort((a, b) => sortRoutes(a.routePath, b.routePath));
 
-  for (let m of modules) router[m.method](m.routePath, attach(m.route));
+  for (let m of modules)
+    (router as any)[m.method](m.routePath, attach(m.route));
 
   return router;
 };
