@@ -15,6 +15,7 @@
   ],
   "devDependencies": {
     "@types/express": "4.17.13",
+    "@types/node": "^16.11.11",
     "@tinqjs/tinjs-boot": "^0.1.2",
     "express": "4.17.2",
     "rxjs": "7.5.2",
