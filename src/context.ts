@@ -102,31 +102,8 @@ const attach = (route: Route) => (req: Request, res: Response) => {
 
   route(of(ctx)).subscribe({
     next(output) {
-      if (output instanceof Observable) {
-        // send as chunk
-        res.writeHead(200, {
-          "Content-Type": "text/plain; charset=utf-8",
-          "Transfer-Encoding": "chunked",
-        });
-
-        output.subscribe({
-          next(v) {
-            res.write(
-              Buffer.from(JSON.stringify(v), "utf-8").toString("base64") + "\n"
-            );
-          },
-          error(err) {
-            logger.error(err);
-            res.write("error");
-          },
-          complete() {
-            res.write(
-              Buffer.from(JSON.stringify("done"), "utf-8").toString("base64")
-            );
-            res.end();
-          },
-        });
-      } else res.status(200).send(output);
+      if (typeof output === "function") output(res);
+      else httpResponse(output)(res);
     },
 
     error(err) {
