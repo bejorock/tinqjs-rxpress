@@ -72,6 +72,21 @@ export const streamResponse =
   (res: Response) =>
     source.pipe(res);
 
+export const streamResponseWithHeader =
+  (headers: Record<string, string>) =>
+  (source: Stream): IHttpResponse =>
+  (res: Response) => {
+    res.set(headers);
+
+    return streamResponse(source)(res);
+  };
+
+export const fileResponse = (fileName: string, contentType: string) =>
+  streamResponseWithHeader({
+    "Content-Type": contentType,
+    "Content-Disposition": `attachment; filename="${fileName}`,
+  });
+
 export interface Route {
   (context: Observable<IHttpContext>): Observable<any>;
 }
