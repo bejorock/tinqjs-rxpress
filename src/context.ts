@@ -126,7 +126,8 @@ const attach = (route: Route) => (req: Request, res: Response) => {
       logger.debug(JSON.stringify(err, null, 4));
 
       if (!res.headersSent)
-        res.status(500).send(`${err.message}, reason: \n\t\t${err.stack}`);
+        // res.status(500).send(`${err.message}, reason: \n\t\t${err.stack}`);
+        res.status(500).send({ message: err.message, stack: err.stack });
     },
   });
 };
